@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<head>
+<link rel="stylesheet" type="text/css" href="js/style.css">
+</head>
+<body>
+<script src="js/d3.min.js"></script>
+<script src="js/d3.geo.polyhedron.v0.min.js"></script>
+<script src="js/topojson.js"></script>
+<script>
+
+/*var colors = [4604];
+for(var i = 0; i < 4604; i++)
+{
+    colors[i] = '#' + Math.random().toString(16).substring(2, 8);
+}*/
+    
+var width = window.location.search.substring(1);;
+if(width == "")
+{
+    width = 2560;
+}
+var height = Math.round(0.5625*width);
+var scale = Math.round(0.12369791666*width);
+var rotation = [20, 0];
+//var color = d3.scale.category10();
+
+var color = d3.scale.linear()
+            .domain([0, 10])
+            .range(["white", "teal"]);
+
+var projection = d3.geo.polyhedron.waterman().scale(scale)
+                       .translate([width / 2, height / 2])
+                       .rotate(rotation);
+
+var path = d3.geo.path().projection(projection);
+
+var tooltip = d3.select("body").append("div")
+    .attr("class", "tooltip");
+
+var graticule = d3.geo.graticule()
+    .step([5, 5])
+    .extent([[-180, -80], [180, 80 + 1e-3]]);
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+svg.append("defs").append("path")
+   .datum({type: "Sphere"})
+   .attr("id", "sphere")
+   .attr("d", path);
+
+svg.append("clipPath")
+   .attr("id", "clip")
+   .append("use")
+   .attr("xlink:href", "#sphere");
+
+svg.append("use")
+   .attr("class", "background")
+   .attr("xlink:href", "#sphere");
+
+svg.append("g")
+   .attr("class", "graticule")
+   .attr("clip-path", "url(#clip)")
+   .selectAll("path")
+   .data(graticule.lines)
+   .enter().append("path")
+   .attr("d", path);
+
+svg.append("path")
+   .datum({type: "Sphere"})
+   .attr("class", "graticule outline")
+   .attr("d", path);
+
+d3.json("js/world-admin-topo.json", function(error, world)
+{
+    var countries = topojson.feature(world, world.objects.admin).features;
+    var neighbors = topojson.neighbors(world.objects.admin.geometries);
+
+    var country = svg.selectAll(".country").data(countries);
+    
+    country.enter().insert("path", ".graticule")
+           .attr("class", "borders")
+           .attr("clip-path", "url(#clip)")
+           .attr("d", path)
+           //.style("fill", function(d, i) { return color(d.color = d3.max(neighbors[i], function(n) { return countries[n].color; }) + 1 | 0); });
+           .style("fill", function(d, i) { return color(neighbors[i].length);});
+
+    country.on("mousemove", function(d,i) {
+    var mouse = d3.mouse(svg.node()).map( function(d) { return parseInt(d); } );
+
+    tooltip
+        .classed("hidden", false)
+        .attr("style", "left:"+(mouse[0]+25)+"px;top:"+mouse[1]+"px")
+        .html(d.properties.name)
+    })
+    .on("mouseout",  function(d,i) {
+        tooltip.classed("hidden", true)
+    });
+});
+
+</script>

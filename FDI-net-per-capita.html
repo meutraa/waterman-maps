@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<head>
+<link rel="stylesheet" type="text/css" href="js/style.css">
+</head>
+<body>
+<script src="js/d3.min.js"></script>
+<script src="js/d3.geo.polyhedron.v0.min.js"></script>
+<script src="js/topojson.js"></script>
+<script src="js/map.js"></script>
+<script src="data/fdi-2013.js"></script>
+<script src="data/fdi-abroad-2013.js"></script>
+<script src="data/population-2013.js"></script>
+<script>
+
+function hasValue(id)
+{
+    return fdi_received.hasOwnProperty(id);
+}
+
+function getValue(id)
+{
+    return Math.round((fdi_abroad[id] - fdi_received[id])/pop[id]);
+}
+
+function getTipAppend(id)
+{
+    return ': $' + toComma(getValue(id));
+}
+
+var color = d3.scale.linear()
+            .domain([-10000, 0, 10000])
+            .range(["pink", "white", "teal"]);
+
+</script>

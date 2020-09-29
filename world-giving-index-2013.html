@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<head>
+<link rel="stylesheet" type="text/css" href="js/style.css">
+</head>
+<body>
+<script src="js/d3.min.js"></script>
+<script src="js/d3.geo.polyhedron.v0.min.js"></script>
+<script src="js/topojson.js"></script>
+<script src="js/map.js"></script>
+<script src="data/world-giving-index.js"></script>
+<script>
+
+function hasValue(id)
+{
+    return values.hasOwnProperty(id);
+}
+
+function getValue(id)
+{
+    return values[id];
+}
+
+function getTipAppend(id)
+{
+    return ': ' + getValue(id) + '%';
+}
+
+var color = d3.scale.linear()
+            .domain([0, 100])
+            .range(["white", "teal"]);
+
+</script>

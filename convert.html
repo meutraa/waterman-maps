@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<input type="text" name="output" id="output">
+
+<script src="js/names-internal.js"></script>
+<script>
+
+function replaceAll(find, replace, str)
+{
+  return str.replace(new RegExp(find, 'g'), replace);
+}
+
+minimator = function(x,y,z)
+{
+    if (x < y && x < z) return x;
+    if (y < x && y < z) return y;
+    return z;
+};
+
+distance = function(a, b)
+{
+    var cost;
+
+    // get values
+    var m = a.length;
+    var n = b.length;
+
+    if (m < n) {
+        var c=a;a=b;b=c;
+        var o=m;m=n;n=o;
+    }
+
+    var r = new Array();
+    r[0] = new Array();
+    for (var c = 0; c < n+1; c++) {
+        r[0][c] = c;
+    }
+
+    for (var i = 1; i < m+1; i++) {
+        r[i] = new Array();
+        r[i][0] = i;
+        for (var j = 1; j < n+1; j++) {
+            cost = (a.charAt(i-1) == b.charAt(j-1))? 0: 1;
+            r[i][j] = minimator(r[i-1][j]+1,r[i][j-1]+1,r[i-1][j-1]+cost);
+        }
+    }
+    return r[m][n];
+};
+    
+var input = prompt("input data", "");
+
+var countries = input.split('oooo'); 
+var data = [];
+
+for(var i = 0; i < countries.length; i++)
+{
+    var country = countries[i].split('|');
+    data[i*2] = country[0];
+    data[(i*2) + 1] = country[1];
+}
+
+
+for(var i = 0; i < data.length; i = i + 2)
+{
+    var lowest_distance = 1365478126;
+    var name = "NULL";
+    var iso = "NULL";
+    var found = false;
+    replaceAll('The ', '', data[i]);
+    replaceAll(' The', '', data[i]);
+    replaceAll('the ', '', data[i]);
+    replaceAll(' the', '', data[i]);
+    replaceAll(',', ''   , data[i]);
+
+    
+    for(var j = 0; j < isos.length; j++)
+    {
+        var possible_names = names[isos[j]].split(' && ');
+        
+        for(var k = 0; k < possible_names.length; k++)
+        {
+            replaceAll(',', '', possible_names[k]);
+            if(data[i] == possible_names[k])
+            {
+                data[i] = isos[j] + ':\"';
+                data[i + 1] = data[i + 1] + '\"';
+                found = true;
+                break;
+            }
+        }
+        if(found == false)
+        {
+            for(var k = 0; k < possible_names.length; k++)
+            {
+                var tmp = distance(data[i], possible_names[k]);
+                if(Math.min(tmp, lowest_distance) == tmp)
+                {
+                    lowest_distance = tmp;
+                    name = possible_names[k];
+                    iso = isos[j];
+                }
+            }
+        }
+    }
+
+    if(found == false)
+    {
+        var bool = confirm(name + ' = ' + data[i]);
+        if(bool == true)
+        {
+            data[i] = iso + ':\"';
+            data[i + 1] = data[i + 1] + '\"';
+        }
+    }
+}
+
+var str = "";
+for(var i = 0; i < data.length; i = i + 2)
+{
+    str += data[i] + data[i + 1] + ',oooo';
+}
+document.getElementById("output").value = str;
+
+</script>
